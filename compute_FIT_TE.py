@@ -146,3 +146,18 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
         FIT4(xIdx) = (FIT41 + FIT42 + FIT43 + FIT44) / 4
         TE2(xIdx) = (TE21 + TE22) / 2
         TE4(xIdx) = (TE41 + TE42 + TE43 + TE44) / 4
+
+        #   x = [1/length(X41) 1/length(X21) 1/length(X)];
+        #   y = [mean(FIT4) mean(FIT2) FITAll];
+    #   
+        #   p2 = polyfit(x, y, 2); 
+        #   p1 = polyfit(x, y, 1);  
+        #   FITQe = p2(3);
+        #   FITLe = p1(2);
+        #   
+        #   y = [mean(TE4) mean(TE2) TEAll];
+    #   
+        #   p2 = polyfit(x, y, 2); 
+        #   p1 = polyfit(x, y, 1);  
+        #   TEQe = p2(3);
+        #   TELe = p1(2);
