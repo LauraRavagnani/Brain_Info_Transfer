@@ -55,109 +55,65 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
     TE4 = np.zeros(xtrap)
 
     for xIdx in xtrap:
-        # Partition trials into subsamples of N/2 and N/4
         numberOfTrials = len(X)
 
+        # Shuffled indexes in 0,ntrials range
         rIdx = npr.choice(numberOfTrials, numberOfTrials, replace=False)
-
-        idx21 = rIdx[ : int(numberOfTrials/2)]
-        idx22 = rIdx[int(numberOfTrials/2) : ]
-
-        idx41 = rIdx[ : int(numberOfTrials/4)]
-        idx42 = rIdx[int(numberOfTrials/4) : int(numberOfTrials/2)]
-        idx43 = rIdx[int(numberOfTrials/2) : int(3 * numberOfTrials/4)]
-        idx44 = rIdx[int(3 * numberOfTrials/4) : ]
-
-        X21 = X[idx21]
-        X22 = X[idx22]
-
-        Y21 = Y[idx21]
-        Y22 = Y[idx22]
-
-        hY21 = hY[idx21]
-        hY22 = hY[idx22]
-
-        feat21 = feature[idx21]
-        feat22 = feature[idx22]
-
-        X41 = X[idx41]
-        X42 = X[idx42]
-        X43 = X[idx43]
-        X44 = X[idx44]
-
-        Y41 = Y[idx41]
-        Y42 = Y[idx42]
-        Y43 = Y[idx43]
-        Y44 = Y[idx44]
-
-        hY41 = hY[idx41]
-        hY42 = hY[idx42]
-        hY43 = hY[idx43]
-        hY44 = hY[idx44]
-
-        feat41 = feature[idx41]
-        feat42 = feature[idx42]
-        feat43 = feature[idx43]
-        feat44 = feature[idx44]
-
-        pXYhYS21 = probability_dist(X21, Y21, hY21, feat21)
-        pXShYY21 = probability_dist(X21, feat21, hY21, Y21)
-        SUI21S = compute_SUI(pXYhYS21)
-        SUI21Y = compute_SUI(pXShYY21)
-        FIT21 = min(SUI21S, SUI21Y)
-        TE21 = TE(pXYhYS21)
         
-        pXYhYS22 = probability_dist(X22, Y22, hY22, feat22)
-        pXShYY22 = probability_dist(X22, feat22, hY22, Y22)
-        SUI22S = compute_SUI(pXYhYS22)
-        SUI22Y = compute_SUI(pXShYY22)
-        FIT22 = min(SUI22S, SUI22Y)
-        TE22 = TE(pXYhYS22)
+        # Divide the indexes in 2 and 4 parts
+        idx2 = np.array_split(rIdx, 2) 
+        idx4 = np.array_split(rIdx, 4)
+        
+        # Stack all the sources in data, separate into 2 and 4 parts, and distinguish between s and y targets
+        data = np.stack(np.array([feature,X,Y,hY]),axis=1)
+        data2_s = np.stack(np.array([data[idx2[i]] for i in range(2)]), axis = 0)
+        data2_y = data2_s[:, :, [2, 1, 0, 3]]
+        data2_tot = np.stack(np.array([data2_s,data2_y]), axis=0)
+        
+        data4_s = np.stack(np.array([data[idx4[i]] for i in range(4)]), axis = 0)
+        data4_y = data4_s[:, :, [2, 1, 0, 3]]
+        data4_tot = np.stack(np.array([data4_s,data4_y]), axis=0)
+        
+        # Compute Joint, SUI, FIT and TE for the 2 divided version
+        joint2 = [[
+            probability_dist(*[data2_tot[ch,row, :, i] for i in range(4)])
+            for row in range(data2_tot.shape[1])]
+            for ch in range(data2_tot.shape[0])
+        ]
+        
+        SUI_2 = [[compute_SUI(joint2[ch][i]) for i in range(2)] for ch in range(len(joint2))]
+        FIT2[xIdx] = np.mean(np.min(SUI_2,axis=0))
+        TE2[xIdx] = np.mean([TE(joint2[0][i]) for i in range(2)])
+        
+        # Compute Joint, SUI, FIT and TE for the 4 divided version
+        joint4 = [[
+            probability_dist(*[data4_tot[ch,row, :, i] for i in range(4)])
+            for row in range(data4_tot.shape[1])]
+            for ch in range(data4_tot.shape[0])
+        ]
+        
+        SUI_4 = [[compute_SUI(joint4[ch][i]) for i in range(4)] for ch in range(len(joint4))]
+        FIT4[xIdx] = np.mean(np.min(SUI_4,axis=0))
+        TE4[xIdx] = np.mean([TE(joint4[0][i]) for i in range(4)])
 
-        pXYhYS41 = probability_dist(X41, Y41, hY41, feat41)
-        pXShYY41 = probability_dist(X41, feat41, hY41, Y41)
-        SUI41S = compute_SUI(pXYhYS41)
-        SUI41Y = compute_SUI(pXShYY41)
-        FIT41 = min(SUI41S, SUI41Y)
-        TE41 = TE(pXYhYS41)
+    # Compute the linear and quadratic interpolations for FIT and TE
 
-        pXYhYS42 = probability_dist(X42, Y42, hY42, feat42)
-        pXShYY42 = probability_dist(X42, feat42, hY42, Y42)
-        SUI42S = compute_SUI(pXYhYS42)
-        SUI42Y = compute_SUI(pXShYY42)
-        FIT42 = min(SUI42S, SUI42Y)
-        TE42 = TE(pXYhYS42)
+    x = [1/len(idx2[0]), 1/len(idx4[0]), 1/len(rIdx)]
+    y = [np.mean(FIT4), np.mean(FIT2), fit_all]
 
-        pXYhYS43 = probability_dist(X43, Y43, hY43, feat43)
-        pXShYY43 = probability_dist(X43, feat43, hY43, Y43)
-        SUI43S = compute_SUI(pXYhYS43)
-        SUI43Y = compute_SUI(pXShYY43)
-        FIT43 = min(SUI43S, SUI43Y)
-        TE43 = TE(pXYhYS43)
+    p2 = np.polyfit(x, y, 2)
+    p1 = np.polyfit(x, y, 1) 
+    FITQe = p2[2]
+    FITLe = p1[1]
+         
+    y = [np.mean(TE4), np.mean(TE2), te_all]
+    
+    p2 = np.polyfit(x, y, 2)
+    p1 = np.polyfit(x, y, 1) 
+    TEQe = p2[2]
+    TELe = p1[1]
 
-        pXYhYS44 = probability_dist(X44, Y44, hY44, feat44)
-        pXShYY44 = probability_dist(X44, feat44, hY44, Y44)
-        SUI44S = compute_SUI(pXYhYS44)
-        SUI44Y = compute_SUI(pXShYY44)
-        FIT44 = min(SUI44S, SUI44Y)
-        TE44 = TE(pXYhYS44)
+    return (te, dfi, fit, TEQe, TELe, FITQe, FITLe)
 
-        FIT2[xIdx] = (FIT21 + FIT22) / 2
-        FIT4(xIdx) = (FIT41 + FIT42 + FIT43 + FIT44) / 4
-        TE2(xIdx) = (TE21 + TE22) / 2
-        TE4(xIdx) = (TE41 + TE42 + TE43 + TE44) / 4
 
-        #   x = [1/length(X41) 1/length(X21) 1/length(X)];
-        #   y = [mean(FIT4) mean(FIT2) FITAll];
-    #   
-        #   p2 = polyfit(x, y, 2); 
-        #   p1 = polyfit(x, y, 1);  
-        #   FITQe = p2(3);
-        #   FITLe = p1(2);
-        #   
-        #   y = [mean(TE4) mean(TE2) TEAll];
-    #   
-        #   p2 = polyfit(x, y, 2); 
-        #   p1 = polyfit(x, y, 1);  
-        #   TEQe = p2(3);
-        #   TELe = p1(2);
+
