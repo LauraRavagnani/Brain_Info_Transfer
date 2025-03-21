@@ -20,18 +20,18 @@
 
 # Build the two four-variables probability distributions needed to compute FIT
 
-import probability_dist
-import compute_SUI
-import TE
-import DFI
+from get_joint_distr import get_joint_prob_distr
+from compute_SUI import compute_SUI
+from get_TE import compute_TE
+from get_DFI import compute_DFI
 
 import numpy as np
 import numpy.random as npr
 
 def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
     # Build the two four-variables probability distributions needed to compute FIT
-    pXYhYS = probability_dist(X, Y, hY, feature)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
-    pXShYY = probability_dist(X, feature, hY, Y)    # probability distribution for the PID with (Xp, Yp, S) as sources and Yt as target
+    pXYhYS = get_joint_prob_distr(X, Y, hY, feature)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
+    pXShYY = get_joint_prob_distr(X, feature, hY, Y)    # probability distribution for the PID with (Xp, Yp, S) as sources and Yt as target
 
     # Compute the two FIT atoms and FIT
     sui_S = compute_SUI(pXYhYS)
@@ -40,10 +40,10 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
     fit = np.min(sui_S,sui_Y)
 
     # Compute TE
-    te = TE(pXYhYS)
+    te = compute_TE(pXYhYS)
 
     # Compute DFI
-    dfi = DFI(pXYhYS)
+    dfi = compute_DFI(pXYhYS)
 
     # Compute quadratic extrapolation bias correction for FIT and TE
     fit_all = fit
@@ -76,25 +76,25 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
         
         # Compute Joint, SUI, FIT and TE for the 2 divided version
         joint2 = [[
-            probability_dist(*[data2_tot[ch,row, :, i] for i in range(4)])
+            get_joint_prob_distr(*[data2_tot[ch,row, :, i] for i in range(4)])
             for row in range(data2_tot.shape[1])]
             for ch in range(data2_tot.shape[0])
         ]
         
         SUI_2 = [[compute_SUI(joint2[ch][i]) for i in range(2)] for ch in range(len(joint2))]
         FIT2[xIdx] = np.mean(np.min(SUI_2,axis=0))
-        TE2[xIdx] = np.mean([TE(joint2[0][i]) for i in range(2)])
+        TE2[xIdx] = np.mean([compute_TE(joint2[0][i]) for i in range(2)])
         
         # Compute Joint, SUI, FIT and TE for the 4 divided version
         joint4 = [[
-            probability_dist(*[data4_tot[ch,row, :, i] for i in range(4)])
+            get_joint_prob_distr(*[data4_tot[ch,row, :, i] for i in range(4)])
             for row in range(data4_tot.shape[1])]
             for ch in range(data4_tot.shape[0])
         ]
         
         SUI_4 = [[compute_SUI(joint4[ch][i]) for i in range(4)] for ch in range(len(joint4))]
         FIT4[xIdx] = np.mean(np.min(SUI_4,axis=0))
-        TE4[xIdx] = np.mean([TE(joint4[0][i]) for i in range(4)])
+        TE4[xIdx] = np.mean([compute_TE(joint4[0][i]) for i in range(4)])
 
     # Compute the linear and quadratic interpolations for FIT and TE
 

@@ -1,7 +1,7 @@
 import numpy as np
 
 # function to get Directed Feature Information
-def get_DFI(joint_prob_distr):
+def compute_DFI(joint_prob_distr):
     
     # marginal distributions
     prob_ypast = np.sum(joint_prob_distr, axis=(0, 1, 3))
