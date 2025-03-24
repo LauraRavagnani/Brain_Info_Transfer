@@ -20,24 +20,43 @@
 
 # Build the two four-variables probability distributions needed to compute FIT
 
-from get_joint_distr import get_joint_prob_distr
-from compute_SUI import compute_SUI
+#from get_joint_distr import get_joint_prob_distr
+from compute_SUI import get_SUI
 from get_TE import compute_TE
 from get_DFI import compute_DFI
 
 import numpy as np
 import numpy.random as npr
 
-def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
+def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
+
+    assert np.min(source_var1) > 0, "Invalid values in source variable 1"
+    assert np.min(source_var2) > 0, "Invalid values in source variable 2"
+    assert np.min(source_var3) > 0, "Invalid values in source variable 3"
+    assert np.min(target) > 0, "Invalid values in target"
+    
+    count = len(source_var1)
+
+    # compute probabilities from (multi-dim) histogram frequencies
+    result, _ = np.histogramdd(
+        np.vstack([source_var1, source_var2, source_var3, target]).T, 
+        bins=[np.max(source_var1), np.max(source_var2), np.max(source_var3), np.max(target)]
+    )
+    
+    return result / count
+
+def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     # Build the two four-variables probability distributions needed to compute FIT
-    pXYhYS = get_joint_prob_distr(X, Y, hY, feature)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
-    pXShYY = get_joint_prob_distr(X, feature, hY, Y)    # probability distribution for the PID with (Xp, Yp, S) as sources and Yt as target
+    pXYhYS = get_joint_prob_distr(feature, X, Y, hY)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
+    pXShYY = get_joint_prob_distr(Y, X, feature, hY)    # probability distribution for the PID with (Xp, Yp, S) as sources and Yt as target
 
     # Compute the two FIT atoms and FIT
-    sui_S = compute_SUI(pXYhYS)
-    sui_Y = compute_SUI(pXShYY)
+    sui_S = get_SUI(pXYhYS)
+    sui_Y = get_SUI(pXShYY)
 
-    fit = np.min(sui_S,sui_Y)
+    print(sui_S)
+
+    fit = np.min([sui_S, sui_Y])
 
     # Compute TE
     te = compute_TE(pXYhYS)
@@ -54,7 +73,7 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
     TE2 = np.zeros(xtrap)
     TE4 = np.zeros(xtrap)
 
-    for xIdx in xtrap:
+    for xIdx in range(xtrap):
         numberOfTrials = len(X)
 
         # Shuffled indexes in 0,ntrials range
@@ -65,7 +84,7 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
         idx4 = np.array_split(rIdx, 4)
         
         # Stack all the sources in data, separate into 2 and 4 parts, and distinguish between s and y targets
-        data = np.stack(np.array([feature,X,Y,hY]),axis=1)
+        data = np.stack(np.array([feature, X, Y, hY]),axis=1)
         data2_s = np.stack(np.array([data[idx2[i]] for i in range(2)]), axis = 0)
         data2_y = data2_s[:, :, [2, 1, 0, 3]]
         data2_tot = np.stack(np.array([data2_s,data2_y]), axis=0)
@@ -81,7 +100,7 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
             for ch in range(data2_tot.shape[0])
         ]
         
-        SUI_2 = [[compute_SUI(joint2[ch][i]) for i in range(2)] for ch in range(len(joint2))]
+        SUI_2 = [[get_SUI(joint2[ch][i]) for i in range(2)] for ch in range(len(joint2))]
         FIT2[xIdx] = np.mean(np.min(SUI_2,axis=0))
         TE2[xIdx] = np.mean([compute_TE(joint2[0][i]) for i in range(2)])
         
@@ -92,7 +111,7 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
             for ch in range(data4_tot.shape[0])
         ]
         
-        SUI_4 = [[compute_SUI(joint4[ch][i]) for i in range(4)] for ch in range(len(joint4))]
+        SUI_4 = [[get_SUI(joint4[ch][i]) for i in range(4)] for ch in range(len(joint4))]
         FIT4[xIdx] = np.mean(np.min(SUI_4,axis=0))
         TE4[xIdx] = np.mean([compute_TE(joint4[0][i]) for i in range(4)])
 
@@ -113,7 +132,7 @@ def compute_FIT_TE(feature, X, Y, hY, xtrap=20):
     TEQe = p2[2]
     TELe = p1[1]
 
-    return (te, dfi, fit, TEQe, TELe, FITQe, FITLe)
+    return te, dfi, fit, TEQe, TELe, FITQe, FITLe
 
 
 

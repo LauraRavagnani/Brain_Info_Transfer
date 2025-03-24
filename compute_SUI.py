@@ -1,7 +1,7 @@
 import numpy as np
 
 # function to compute shared unique information
-def compute_SUI(joint_prob_distr):
+def get_SUI(joint_prob_distr):
 
     # get dimensions
     dim_x_past = joint_prob_distr.shape[0]
@@ -14,11 +14,11 @@ def compute_SUI(joint_prob_distr):
     spec_surprise_y = np.zeros(dim_s)
     spec_surprise_y_past = np.zeros(dim_s)
 
-    # p(s)
-    ps = np.sum(joint_prob_distr[:, :, :, s]) 
-
     # compute specific information provided by each source variable about s (target)
     for s in range(dim_s):
+
+        # p(s)
+        ps = np.sum(joint_prob_distr[:, :, :, s]) 
 
         # info provided by x past
         for x in range(dim_x_past):
