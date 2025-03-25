@@ -9,8 +9,6 @@ def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
     assert np.min(target) > 0, "Invalid values in target"
     
     count = len(source_var1)
-    
-    print('aaa')
 
     # compute probabilities from (multi-dim) histogram frequencies
     result, _ = np.histogramdd(
