@@ -73,7 +73,7 @@ I, Ish = information(R, opts, "I", "Ish")
 print("I:", I, "Ish:", Ish)
 
 
-# function to compute directed information as
+# function to compute differential information as
 # DI(X,Y) = I(hY,X ; Y) - I(hY, Y)
 def di_inf_toolbox(X, Y, hY, bias, compute_shuffled, information):
 
