@@ -20,30 +20,13 @@
 
 # Build the two four-variables probability distributions needed to compute FIT
 
-#from get_joint_distr import get_joint_prob_distr
-from compute_SUI import get_SUI
+from get_joint_prob_distr import get_joint_prob_distr
+from get_SUI import get_SUI
 from get_TE import compute_TE
 from get_DFI import compute_DFI
 
 import numpy as np
 import numpy.random as npr
-
-def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
-
-    assert np.min(source_var1) > 0, "Invalid values in source variable 1"
-    assert np.min(source_var2) > 0, "Invalid values in source variable 2"
-    assert np.min(source_var3) > 0, "Invalid values in source variable 3"
-    assert np.min(target) > 0, "Invalid values in target"
-    
-    count = len(source_var1)
-
-    # compute probabilities from (multi-dim) histogram frequencies
-    result, _ = np.histogramdd(
-        np.vstack([source_var1, source_var2, source_var3, target]).T, 
-        bins=[np.max(source_var1), np.max(source_var2), np.max(source_var3), np.max(target)]
-    )
-    
-    return result / count
 
 def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     # Build the two four-variables probability distributions needed to compute FIT
@@ -54,15 +37,13 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     sui_S = get_SUI(pXYhYS)
     sui_Y = get_SUI(pXShYY)
 
-    print(sui_S)
-
     fit = np.min([sui_S, sui_Y])
 
     # Compute TE
     te = compute_TE(pXYhYS)
 
     # Compute DFI
-    dfi = compute_DFI(pXYhYS)
+    dfi = compute_DFI(pXYhYS)[0]
 
     # Compute quadratic extrapolation bias correction for FIT and TE
     fit_all = fit
@@ -74,6 +55,7 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     TE4 = np.zeros(xtrap)
 
     for xIdx in range(xtrap):
+
         numberOfTrials = len(X)
 
         # Shuffled indexes in 0,ntrials range
@@ -132,7 +114,4 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     TEQe = p2[2]
     TELe = p1[1]
 
-    return te, dfi, fit, TEQe, TELe, FITQe, FITLe
-
-
-
+    return te, dfi, fit # , TEQe, TELe, FITQe, FITLe
