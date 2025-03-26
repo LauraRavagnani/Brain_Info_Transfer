@@ -6,7 +6,7 @@ from compute_FIT_TE_DFI import compute_FIT_TE_DFI
 
 npr.seed(2503)
 
-def sim2Aroutine():
+def sim2ABroutine():
 
     # simulation parameters
 
@@ -14,8 +14,8 @@ def sim2Aroutine():
     simReps = 50                # number of simulations
     nShuff = 10                 # number of permutations
 
-    w_sig = np.linspace(0, 1, num=10)      # signal weights for Y computation
-    w_noise = np.linspace(0, 1, num=10)    # noise weights for Y computation
+    w_sig = np.linspace(0, 1, num=11)      # signal weights for Y computation
+    w_noise = np.linspace(0, 1, num=11)    # noise weights for Y computation
     stdX_noise = 2                      # std of gaussian noise in X_noise
     stdY = 2                            # std of gaussian noise in Y
     ratio = 0.2                         # ratio between stdX_sig and stdX_noise
@@ -26,6 +26,7 @@ def sim2Aroutine():
     simLen = 60                             # simulation length in units of 10 ms
     stimWin = [30, 35]                      # X stimulus encoding window in units of 10 ms
     delays = np.linspace(4, 6, num=3, dtype=int)
+    delay_max = 10                          # Maximum Computed Delay
     n_binsS = 4                             # number of stimulus values
     n_binsX = 3
     n_binsY = 3
@@ -58,6 +59,8 @@ def sim2Aroutine():
     te_B = fit_B.copy()
     dfi_B = fit_B.copy()
 
+    print('\n Starting part A \n')
+
     # simulations
     for simIdx in range(simReps):
         print('Simulation number: ', simIdx, '\n')
@@ -87,10 +90,10 @@ def sim2Aroutine():
 
                 # Save for 2B
                 if (sigIdx == 10) and (noiseIdx == 5):
-                    S_B [simIdx] = S
-                    X_noise_B [simIdx]= X_noise
-                    X_signal_B [simIdx]= X_signal
-                    Y_B [simIdx]= Y
+                    S_B[simIdx] = S
+                    X_noise_B[simIdx]= X_noise
+                    X_signal_B[simIdx]= X_signal
+                    Y_B[simIdx]= Y
 
                 # First time point at which Y receives stim info from X
                 t = stimWin[0] + reps_delays[simIdx]
@@ -111,7 +114,7 @@ def sim2Aroutine():
 
                 bX = (bX_sig - 1) * n_binsX + bX_noise
 
-                te[simIdx][sigIdx][noiseIdx], dfi[simIdx][sigIdx][noiseIdx], fit[simIdx][sigIdx][noiseIdx] = compute_FIT_TE_DFI(S, bX, bYt, bYpast)
+                te_A[simIdx][sigIdx][noiseIdx], dfi_A[simIdx][sigIdx][noiseIdx], fit_A[simIdx][sigIdx][noiseIdx] = compute_FIT_TE_DFI(S, bX, bYt, bYpast)
 
                 ######## SHUFFLING ########
 
@@ -133,4 +136,33 @@ def sim2Aroutine():
                 #   _, dfish, fitsh = compute_FIT_TE(Ssh, bX, bYt, bYpast)
                 #   dish = DI_infToolBox(XSh, bYt, bYpast, 'naive', 0)
 
-    return fit, te, dfi
+    print('\n Part A finished \n')
+
+    print('\n Starting part B \n')
+
+    # only 2B part
+    for simIdx in range(simReps):
+        print('Simulation number: ', simIdx, '\n')
+
+        # Loop over time and delays
+        for t in range(simLen):
+            for d in range(delay_max):
+
+                # Discretize Neural Activity
+                _, bin_edges = pd.cut(X_noise_B[simIdx][t-d,:], n_binsX, retbins=True)
+                bX_noise = np.digitize(X_noise_B[simIdx][t-d, :], bins=bin_edges, right=True)
+
+                _, bin_edges = pd.cut(X_signal_B[simIdx][t-d,:], n_binsX, retbins=True)
+                bX_sig = np.digitize(X_signal_B[simIdx][t-d,:], bins=bin_edges, right=True)
+
+                _, bin_edges = pd.cut(Y_B[simIdx][t,:], n_binsY, retbins=True)
+                bYt = np.digitize(Y_B[simIdx][t,:], bins=bin_edges, right=True)
+
+                _, bin_edges = pd.cut(Y_B[simIdx][t-d,:], n_binsY, retbins=True)
+                bYpast = np.digitize(Y_B[simIdx][t-d,:], bins=bin_edges, right=True)
+
+                bX = (bX_sig - 1) * n_binsX + bX_noise
+
+                te_B[simIdx][t][d], dfi_B[simIdx][t][d], fit_B[simIdx][t][d] = compute_FIT_TE_DFI(S_B[simIdx], bX, bYt, bYpast)
+
+    return fit_A, te_A, dfi_A, fit_B, te_B, dfi_B
