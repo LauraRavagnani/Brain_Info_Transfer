@@ -38,15 +38,25 @@ def sim2Aroutine():
 
     # structures
 
-    fit = np.full(shape=(simReps, len(w_sig), len(w_noise)), fill_value=np.nan)
-    te = fit.copy()
-    dfi = fit.copy()
+    # A
+    fit_A = np.full(shape=(simReps, len(w_sig), len(w_noise)), fill_value=np.nan)
+    te_A = fit_A.copy()
+    dfi_A = fit_A.copy()
     fitsh = np.full((simReps, len(w_sig), len(w_noise), nShuff), np.nan)
     dish = fitsh.copy()
     dfish = fitsh.copy()
     fitsh_cond = np.full((simReps, len(w_sig), len(w_noise), nShuff), np.nan)
     dish_cond = fitsh_cond.copy()
     dfish_cond = fitsh_cond.copy()
+
+    # B
+    S_B = np.full(shape=(simReps, nTrials), fill_value=-1, dtype=int) # I changed this
+    X_noise_B = np.full(shape=(simReps, simLen, nTrials), fill_value=np.nan) # I changed this
+    X_signal_B = X_noise_B.copy()
+    Y_B = X_noise_B.copy()
+    fit_B = np.full(shape=(simReps, simLen, delay_max), fill_value=np.nan)
+    te_B = fit_B.copy()
+    dfi_B = fit_B.copy()
 
     # simulations
     for simIdx in range(simReps):
@@ -74,6 +84,13 @@ def sim2Aroutine():
 
                 # Computing Y + gaussian noise
                 Y = X2Ysig + X2Ynoise + npr.normal(0,stdY,size=(simLen, nTrials))
+
+                # Save for 2B
+                if (sigIdx == 10) and (noiseIdx == 5):
+                    S_B [simIdx] = S
+                    X_noise_B [simIdx]= X_noise
+                    X_signal_B [simIdx]= X_signal
+                    Y_B [simIdx]= Y
 
                 # First time point at which Y receives stim info from X
                 t = stimWin[0] + reps_delays[simIdx]
