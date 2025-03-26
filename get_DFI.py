@@ -29,4 +29,4 @@ def compute_DFI(joint_prob_distr):
     # compute DFI
     dfi = h_y_ypast - h_ypast - h_x_y_ypast + h_x_ypast - h_y_ypast_s + h_ypast_s + h_x_y_ypast_s - h_x_ypast_s
     
-    return dfi, h_ypast, h_x_ypast, h_y_ypast, h_ypast_s, h_x_y_ypast, h_y_ypast_s, h_x_ypast_s, h_x_y_ypast_s
+    return dfi
