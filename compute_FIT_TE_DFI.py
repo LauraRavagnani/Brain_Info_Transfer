@@ -43,7 +43,7 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     te = compute_TE(pXYhYS)
 
     # Compute DFI
-    dfi = compute_DFI(pXYhYS)[0]
+    dfi = compute_DFI(pXYhYS)
 
     # Compute quadratic extrapolation bias correction for FIT and TE
     fit_all = fit
