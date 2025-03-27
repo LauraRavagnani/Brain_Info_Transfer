@@ -10,8 +10,8 @@ def sim2ABroutine():
 
     # simulation parameters
 
-    nTrials_per_stim = 500      # number of trials for each simulation
-    simReps = 50                # number of simulations
+    nTrials_per_stim = 5      # number of trials for each simulation
+    simReps = 2                # number of simulations
     nShuff = 10                 # number of permutations
 
     w_sig = np.linspace(0, 1, num=11)      # signal weights for Y computation
