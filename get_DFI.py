@@ -13,7 +13,7 @@ def get_DFI(joint_prob_distr):
     prob_x_ypast_s = np.sum(joint_prob_distr, axis=1)
     
     def get_entropy(prob_dist):
-        prob_nonzero = prob_dist[prob_dist > 0]  # filter out zero values
+        prob_nonzero = prob_dist[prob_dist > 0]  # Filter out zero values
         return -np.sum(prob_nonzero * np.log2(prob_nonzero))
     
     # entropies
@@ -29,4 +29,4 @@ def get_DFI(joint_prob_distr):
     # compute DFI
     dfi = h_y_ypast - h_ypast - h_x_y_ypast + h_x_ypast - h_y_ypast_s + h_ypast_s + h_x_y_ypast_s - h_x_ypast_s
     
-    return dfi, h_ypast, h_x_ypast, h_y_ypast, h_ypast_s, h_x_y_ypast, h_y_ypast_s, h_x_ypast_s, h_x_y_ypast_s
+    return dfi
