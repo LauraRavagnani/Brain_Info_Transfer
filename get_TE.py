@@ -1,7 +1,7 @@
 import numpy as np
 
 # compute TE
-def compute_TE(joint_prob_distr):
+def get_TE(joint_prob_distr):
 
     p_ypast = np.sum(joint_prob_distr, axis=(0, 1, 3))
     p_x_ypast = np.sum(joint_prob_distr, axis=(1, 3))
