@@ -5,6 +5,7 @@ import numpy.random as npr
 import matplotlib.pyplot as plt
 from joblib import Parallel, delayed
 from itertools import product
+import pickle
 
 def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
     
