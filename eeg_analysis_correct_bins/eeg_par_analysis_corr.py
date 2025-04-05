@@ -328,7 +328,6 @@ for file in range(num_files):
     )
     
     for res in results:
-        t, d, r_vals, l_vals = res
         t, d, right_vals_LR, right_vals_RL, left_vals_LR, left_vals_RL = res
 
         # te, dfi, fit, TEQe, TELe, FITQe, FITLe
