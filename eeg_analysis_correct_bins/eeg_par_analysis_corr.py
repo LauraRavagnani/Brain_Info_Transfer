@@ -7,6 +7,10 @@ from joblib import Parallel, delayed
 from itertools import product
 import pickle
 
+
+# -------- UTILS FUNCTIONS ----------
+
+# function to compute the joint distribution
 def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
     
     count = len(source_var1)
@@ -19,6 +23,7 @@ def get_joint_prob_distr(target, source_var1, source_var2, source_var3):
     
     return result / count
 
+# function to compute the shared unique information
 def get_SUI(joint_prob_distr):
 
     # get dimensions
@@ -60,7 +65,6 @@ def get_SUI(joint_prob_distr):
             spec_surprise_y_past[s] += pys * (np.log2(1/(ps + np.finfo(float).eps)) - np.log2(1/(psy + np.finfo(float).eps)))
 
     # compute IMin
-
     IMin_x_y_ypast = 0
     IMin_x_y = 0
 
@@ -70,6 +74,7 @@ def get_SUI(joint_prob_distr):
 
     return IMin_x_y - IMin_x_y_ypast
 
+# function to compute transfer entropy
 def compute_TE(joint_prob_distr):
 
     p_ypast = np.sum(joint_prob_distr, axis=(0, 1, 3))
@@ -88,6 +93,7 @@ def compute_TE(joint_prob_distr):
     
     return h_y_ypast - h_ypast - h_x_y_ypast + h_x_ypast
 
+# function to compute
 def compute_DFI(joint_prob_distr):
     
     # marginal distributions
@@ -118,6 +124,7 @@ def compute_DFI(joint_prob_distr):
     
     return dfi
 
+# function to compute FIT
 def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     # Build the two four-variables probability distributions needed to compute FIT
     pXYhYS = get_joint_prob_distr(feature, X, Y, hY)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
@@ -208,8 +215,11 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
 
     return (te, dfi, fit, TEQe, TELe, FITQe, FITLe)
 
+# function that helps parallelizing
 def inner_cycle (temp, d):
+
     t = temp + max_delay + 1
+
     # Discretize Neural Signals
     _, bin_edges = pd.qcut(leeg[t,:], bins, retbins=True)
     leeg_d = np.digitize(leeg[t,:], bins=bin_edges, right=False)
@@ -240,6 +250,9 @@ def inner_cycle (temp, d):
     left_vals_RL = compute_FIT_TE_DFI(LES, pastX, Y, pastY)
 
     return temp, d, right_vals_LR, right_vals_RL, left_vals_LR, left_vals_RL
+
+
+# -------- MAIN ANALYSIS ROUTINE ---------
 
 # global parameters
 max_delay = 60
@@ -287,7 +300,6 @@ left_RL_TELe = right_LR_di.copy()
 left_RL_FITQe = right_LR_di.copy()
 left_RL_FITLe = right_LR_di.copy()
 
-
 for file in range(num_files):
     print('File ',file+1)
     file_path = '/mnt/FIT_project/EEGdata/data_s{0}.mat'.format(file+1)
@@ -320,7 +332,6 @@ for file in range(num_files):
     LES = np.digitize(left_eye_v, bins=bin_edges, right=False)
     _, bin_edges = pd.qcut(right_eye_v, bins, retbins=True)
     RES = np.digitize(right_eye_v, bins=bin_edges, right=False)
-
 
     index_iter = product(range(time), range(max_delay))
     results = Parallel(n_jobs=-1,verbose=10)(

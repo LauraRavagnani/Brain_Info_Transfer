@@ -60,7 +60,6 @@ def get_SUI(joint_prob_distr):
             spec_surprise_y_past[s] += pys * (np.log2(1/(ps + np.finfo(float).eps)) - np.log2(1/(psy + np.finfo(float).eps)))
 
     # compute IMin
-
     IMin_x_y_ypast = 0
     IMin_x_y = 0
 
@@ -119,6 +118,7 @@ def compute_DFI(joint_prob_distr):
     return dfi
 
 def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
+
     # Build the two four-variables probability distributions needed to compute FIT
     pXYhYS = get_joint_prob_distr(feature, X, Y, hY)    # probability distribution for the PID with (Xp, Yp, Yt) as sources and S as target
     pXShYY = get_joint_prob_distr(Y, X, feature, hY)    # probability distribution for the PID with (Xp, Yp, S) as sources and Yt as target
@@ -209,7 +209,9 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
     return (te, dfi, fit, TEQe, TELe, FITQe, FITLe)
 
 def inner_cycle (temp, d):
+
     t = temp + max_delay + 1
+    
     # Discretize Neural Signals
     _, bin_edges = pd.qcut(leeg[t,:], bins, retbins=True)
     leeg_d = np.digitize(leeg[t,:], bins=bin_edges, right=False)
