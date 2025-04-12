@@ -221,15 +221,12 @@ def inner_cycle (temp, d):
     t = temp + max_delay + 1
 
     # Discretize Neural Signals
-    _, bin_edges = pd.qcut(leeg[t,:], bins, retbins=True)
-    leeg_d = np.digitize(leeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(leeg[t-d,:], bins, retbins=True)
-    leegp = np.digitize(leeg[t-d,:], bins=bin_edges, right=False)
 
-    _, bin_edges = pd.qcut(reeg[t,:], bins, retbins=True)
-    reeg_d = np.digitize(reeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(reeg[t-d,:], bins, retbins=True)
-    reegp = np.digitize(reeg[t-d,:], bins=bin_edges, right=False)
+    leeg_d = pd.qcut(leeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    leegp = pd.qcut(leeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
+
+    reeg_d = pd.qcut(reeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    reegp = pd.qcut(reeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
 
     # Left eye visibility, Right to left tranfer
     pastX = reegp
@@ -256,7 +253,7 @@ def inner_cycle (temp, d):
 
 # global parameters
 max_delay = 60
-bins = 2
+bins = 3
 time = 300 # timesteps to compute fit
 
 # metadata
