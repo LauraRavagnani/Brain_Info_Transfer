@@ -210,24 +210,17 @@ def compute_FIT_TE_DFI(feature, X, Y, hY, xtrap=20):
 
 def inner_cycle (temp, d):
     t = temp + max_delay + 1
-    # Discretize Neural Signals
-    _, bin_edges = pd.qcut(leeg[t,:], bins, retbins=True)
-    leeg_d = np.digitize(leeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(ldeeg[t,:], bins, retbins=True)
-    ldeeg_d = np.digitize(ldeeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(leeg[t-d,:], bins, retbins=True)
-    leegp = np.digitize(leeg[t-d,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(ldeeg[t-d,:], bins, retbins=True)
-    ldeegp = np.digitize(ldeeg[t-d,:], bins=bin_edges, right=False)
 
-    _, bin_edges = pd.qcut(reeg[t,:], bins, retbins=True)
-    reeg_d = np.digitize(reeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(rdeeg[t,:], bins, retbins=True)
-    rdeeg_d = np.digitize(rdeeg[t,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(reeg[t-d,:], bins, retbins=True)
-    reegp = np.digitize(reeg[t-d,:], bins=bin_edges, right=False)
-    _, bin_edges = pd.qcut(rdeeg[t-d,:], bins, retbins=True)
-    rdeegp = np.digitize(rdeeg[t-d,:], bins=bin_edges, right=False)
+    # Discretize Neural Signals
+    leeg_d = pd.qcut(leeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    ldeeg_d = pd.qcut(ldeeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    leegp = pd.qcut(leeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
+    ldeegp = pd.qcut(ldeeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
+
+    reeg_d = pd.qcut(reeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    rdeeg_d = pd.qcut(rdeeg[t,:], bins, labels=range(1,bins+1)).astype(int)
+    reegp = pd.qcut(reeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
+    rdeegp = pd.qcut(rdeeg[t-d,:], bins, labels=range(1,bins+1)).astype(int)
 
     # Left eye visibility, Right to left tranfer
 
@@ -253,7 +246,7 @@ def inner_cycle (temp, d):
 
 # global parameters
 max_delay = 60
-bins = 2
+bins = 3
 time = 300 # timesteps to compute fit
 
 # metadata
