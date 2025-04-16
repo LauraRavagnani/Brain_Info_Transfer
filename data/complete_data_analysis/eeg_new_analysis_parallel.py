@@ -5,6 +5,7 @@ from itertools import product
 import scipy.io as sio
 import pickle as pkl
 from info_utils import compute_FIT_TE
+from parameters import par
 
 # ----------------Data-Analysis-of-first-EEG-Dataset---------------------
 
@@ -14,8 +15,8 @@ with open('data/new_data.pkl', 'rb') as f:
     data = np.transpose(data_raw, (1,2,0))
 
 # Global Parameters
-max_delay = 60
-bins = 3
+max_delay = par.max_delay_eeg
+bins = par.n_binsX
 timesteps = np.shape(data)[1]
 
 # Channels to consider (Electrodes)
@@ -31,7 +32,7 @@ data_mot_left = data[left_motor,:,:]
 data_mot_right = data[right_motor,:,:]
 
 # Loading Stimulus Data
-df = pd.read_excel("data/P1 (1).xlsx", sheet_name=0)
+df = pd.read_excel("P1.xlsx", sheet_name=0)
 exc_f = df.to_numpy()
 S_original = exc_f[:,2]
 unique_words, S_raw = np.unique(S_original, return_inverse=True)

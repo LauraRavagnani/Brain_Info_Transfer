@@ -5,6 +5,7 @@ from joblib import Parallel, delayed
 from itertools import product
 import pickle
 from info_utils import compute_FIT_TE
+from parameters import par
 
 # ----------------Data-Analysis-of-first-EEG-Dataset---------------------
 
@@ -48,8 +49,8 @@ def inner_cycle (temp, d):
 # -------- MAIN ANALYSIS ROUTINE ---------
 
 # global parameters
-max_delay = 60
-bins = 3
+max_delay = par.max_delay_eeg
+bins = par.n_binsX
 time = 300 # timesteps to compute fit
 
 # metadata
