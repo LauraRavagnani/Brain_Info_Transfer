@@ -43,7 +43,7 @@ class params():
         # infinitesimal constant
         self.eps = eps
 
-        # factor to low the noise 
+        # signal to noise ratio for fig 2E
         self.snr = snr
 
         # maximum delay for eeg analysis
@@ -68,6 +68,6 @@ par = params(
     n_binsX = 3,
     n_binsY = 3,
     eps = 1e-52,  
-    snr = np.arange(0.05, 1.05, 0.05)
+    snr = np.arange(0.05, 1.05, 0.05),
     max_delay_eeg = 60
 )
