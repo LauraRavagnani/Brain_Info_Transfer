@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 
-def plot_map4(l_array, r_array, title, min_lim, max_lim, type, upper):
+def plot_map4(l_array, r_array, title, min_lim, max_lim, type, upper, upper_col):
     fig, ax = plt.subplots(nrows = 2, ncols =2, figsize=(16,10))
 
     if type=="Paper":
-        v_max = max(np.max(np.mean(l_array[:,0:upper], axis=0).T),np.max(np.mean(r_array[:,0:upper], axis=0).T))*0.6
+        v_max = max(np.max(np.mean(l_array[:,0:upper], axis=0).T),np.max(np.mean(r_array[:,0:upper], axis=0).T))*upper_col
         v_min = min(np.min(np.mean(l_array[:,0:upper], axis=0).T),np.min(np.mean(r_array[:,0:upper], axis=0).T))*0.6
 
         l = ax[0][0].imshow(np.mean(l_array, axis=0).T, origin='lower', cmap='plasma', vmin=v_min, vmax=v_max)
