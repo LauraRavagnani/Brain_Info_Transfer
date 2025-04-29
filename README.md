@@ -2,7 +2,7 @@
 Test of a new information theoretic measure termed Feature-specific Information Transfer (FIT), quantifying how much information about a specific feature flows between two regions. 
 
 <p align="center">
-<img width="404" alt="flow" src="https://github.com/user-attachments/assets/a80d595c-0f95-4e3e-8733-3c0189ac59d8" />
+<img width="350" alt="flow" src="https://github.com/user-attachments/assets/a80d595c-0f95-4e3e-8733-3c0189ac59d8" />
 </p>
 
 
