@@ -8,7 +8,8 @@ Test of a new information theoretic measure termed Feature-specific Information 
 
 
 ## Data
-The data used in this work can be retrieved from this publicy avaiable [EEG dataset](https://datadryad.org/dataset/doi:10.5061/dryad.8m2g3).
+The data used in the first part of the work can be retrieved from this publicy avaiable [EEG dataset](https://datadryad.org/dataset/doi:10.5061/dryad.8m2g3).
+In the second analysis of real data, the dataset is in `P1.xlsx`.
 
 ## Requisites
 
